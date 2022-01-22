@@ -25,12 +25,12 @@ io.on("connection", (socket) => {
 ExpressPeerServer(server, { path: "/" });
 
 // Routes
-app.use("/api", require("./routes/authRouter"));
-app.use("/api", require("./routes/userRouter"));
-app.use("/api", require("./routes/postRouter"));
-app.use("/api", require("./routes/commentRouter"));
-app.use("/api", require("./routes/notifyRouter"));
-app.use("/api", require("./routes/messageRouter"));
+app.use(process.env.API_PREFIX, require("./routes/authRouter"));
+app.use(process.env.API_PREFIX, require("./routes/userRouter"));
+app.use(process.env.API_PREFIX, require("./routes/postRouter"));
+app.use(process.env.API_PREFIX, require("./routes/commentRouter"));
+app.use(process.env.API_PREFIX, require("./routes/notifyRouter"));
+app.use(process.env.API_PREFIX, require("./routes/messageRouter"));
 
 const URI = process.env.MONGODB_URL;
 
@@ -45,6 +45,13 @@ mongoose.connect(
     console.log("Connected to mongodb");
   }
 );
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("client/build"));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+  });
+}
 
 const port = process.env.PORT || 5000;
 
